@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fractions Quiz — Grade 8</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#f5f0e8; --card:#fffdf8; --navy:#1a2e4a; --teal:#1b7a6e;
+    --teal-light:#d4ede9; --amber:#e8930a; --amber-light:#fdf0d5;
+    --rose:#c0392b; --rose-light:#fde8e6; --green:#2e7d32;
+    --green-light:#e6f4e7; --ink:#2c2c2c; --muted:#7a7460; --border:#ddd8cc;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+
+  header{background:var(--navy);padding:24px 32px 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.18);}
+  .header-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+  header h1{font-size:1.45rem;font-weight:900;color:#fff;letter-spacing:-0.02em;}
+  header h1 span{color:#7ecec7;}
+  .score-pill{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.2);color:#fff;border-radius:40px;padding:6px 20px;font-size:0.92rem;font-weight:700;white-space:nowrap;}
+  .score-pill .s-num{color:#7ecec7;font-size:1.1rem;}
+
+  .progress-wrap{background:var(--navy);padding:0 32px 14px;}
+  .progress-inner{max-width:860px;margin:0 auto;}
+  .progress-track{height:6px;background:rgba(255,255,255,0.12);border-radius:99px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#7ecec7,#e8930a);border-radius:99px;transition:width 0.5s cubic-bezier(.4,0,.2,1);width:0%;}
+  .progress-label{display:flex;justify-content:space-between;color:rgba(255,255,255,0.5);font-size:0.75rem;margin-top:6px;}
+
+  main{max-width:860px;margin:0 auto;padding:28px 24px 80px;}
+
+  .section-block{display:none;animation:fadeSlide 0.4s ease;}
+  .section-block.active{display:block;}
+  @keyframes fadeSlide{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+  .section-title{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
+  .section-badge{width:44px;height:44px;background:var(--navy);color:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;flex-shrink:0;}
+  .section-title h2{font-size:1.2rem;font-weight:800;color:var(--navy);}
+  .section-title p{font-size:0.83rem;color:var(--muted);font-family:'Lora',serif;font-style:italic;}
+
+  .q-card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:22px 26px;margin-bottom:14px;box-shadow:0 2px 12px rgba(26,46,74,0.08);transition:border-color 0.2s;}
+  .q-card.correct{border-color:var(--green);background:var(--green-light);}
+  .q-card.wrong{border-color:var(--rose);background:var(--rose-light);}
+
+  .q-label{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;}
+  .q-num{width:26px;height:26px;background:var(--navy);color:#fff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:800;flex-shrink:0;margin-top:2px;}
+  .q-text{font-family:'Lora',serif;font-size:0.97rem;line-height:1.55;color:var(--ink);flex:1;}
+  .q-points{font-size:0.73rem;font-weight:700;color:var(--muted);background:var(--bg);padding:2px 8px;border-radius:99px;white-space:nowrap;margin-left:auto;}
+
+  .frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 3px;line-height:1.1;}
+  .frac .num,.frac .den{font-weight:700;font-size:1rem;padding:1px 5px;}
+  .frac .bar{width:100%;height:2px;background:currentColor;border-radius:1px;}
+
+  .problem-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+  .part-label{font-weight:800;color:var(--navy);min-width:26px;}
+  .op{font-size:1.1rem;font-weight:700;color:var(--navy);}
+
+  .frac-input{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 4px;}
+  .frac-input input{border:1.5px solid var(--border);border-radius:6px;background:var(--bg);font-family:'Nunito',sans-serif;font-size:0.92rem;font-weight:700;color:var(--navy);width:50px;text-align:center;outline:none;padding:3px 4px;transition:border-color 0.2s,background 0.2s;}
+  .frac-input input:focus{border-color:var(--teal);background:#fff;}
+  .frac-input input.correct{border-color:var(--green);background:var(--green-light);color:var(--green);}
+  .frac-input input.wrong{border-color:var(--rose);background:var(--rose-light);color:var(--rose);}
+  .frac-input .frac-bar{width:40px;height:2px;background:var(--navy);margin:2px 0;border-radius:1px;}
+
+  .ans-input{border:none;border-bottom:2.5px solid var(--navy);background:transparent;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);width:80px;text-align:center;outline:none;padding:4px 4px 2px;transition:border-color 0.2s;}
+  .ans-input:focus{border-color:var(--teal);}
+  .ans-input.correct{border-color:var(--green);color:var(--green);}
+  .ans-input.wrong{border-color:var(--rose);color:var(--rose);}
+
+  .blank-input{display:inline-block;width:44px;border:2px dashed var(--teal);border-radius:6px;background:var(--teal-light);text-align:center;font-family:'Nunito',sans-serif;font-weight:700;font-size:1rem;color:var(--teal);padding:2px 4px;outline:none;transition:border-color 0.2s;}
+  .blank-input:focus{border-color:var(--navy);}
+  .blank-input.correct{border-color:var(--green);background:var(--green-light);color:var(--green);border-style:solid;}
+  .blank-input.wrong{border-color:var(--rose);background:var(--rose-light);color:var(--rose);border-style:solid;}
+
+  .parts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .part-box{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;}
+  .part-box.correct{border-color:var(--green);}
+  .part-box.wrong{border-color:var(--rose);}
+
+  .mcq-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
+  .mcq-btn{background:var(--bg);border:2px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'Nunito',sans-serif;font-size:0.93rem;font-weight:700;color:var(--navy);cursor:pointer;text-align:center;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .mcq-btn:hover:not([disabled]){border-color:var(--teal);background:var(--teal-light);}
+  .mcq-btn.selected{border-color:var(--navy);background:var(--amber-light);}
+  .mcq-btn.correct-ans{border-color:var(--green);background:var(--green-light);color:var(--green);}
+  .mcq-btn.wrong-ans{border-color:var(--rose);background:var(--rose-light);color:var(--rose);}
+  .mcq-btn[disabled]{cursor:default;}
+
+  .tf-options{display:flex;gap:12px;margin-top:8px;}
+  .tf-btn{flex:1;padding:12px;border:2px solid var(--border);border-radius:10px;background:var(--bg);font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;transition:all 0.15s;color:var(--navy);}
+  .tf-btn:hover:not([disabled]){border-color:var(--teal);background:var(--teal-light);}
+  .tf-btn.selected{border-color:var(--navy);background:var(--amber-light);}
+  .tf-btn.correct-ans{border-color:var(--green);background:var(--green-light);color:var(--green);}
+  .tf-btn.wrong-ans{border-color:var(--rose);background:var(--rose-light);color:var(--rose);}
+  .tf-btn[disabled]{cursor:default;}
+
+  .feedback{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:0.87rem;font-weight:600;display:none;line-height:1.45;}
+  .feedback.show{display:block;}
+  .feedback.correct{background:var(--green-light);color:var(--green);}
+  .feedback.wrong{background:var(--rose-light);color:var(--rose);}
+
+  .check-btn{background:var(--teal);color:#fff;border:none;border-radius:10px;padding:9px 20px;font-family:'Nunito',sans-serif;font-size:0.9rem;font-weight:800;cursor:pointer;margin-top:12px;transition:background 0.15s,transform 0.1s;display:inline-flex;align-items:center;gap:6px;}
+  .check-btn:hover:not([disabled]){background:#155f55;transform:translateY(-1px);}
+  .check-btn[disabled]{background:#9ab8b5;cursor:default;transform:none;}
+
+  .working-area{margin-top:12px;}
+  .working-area label{font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:5px;}
+  .working-area textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:'Lora',serif;font-size:0.93rem;color:var(--ink);padding:9px 12px;resize:vertical;min-height:58px;outline:none;transition:border-color 0.2s;}
+  .working-area textarea:focus{border-color:var(--teal);background:#fff;}
+
+  .hint-toggle{background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.78rem;font-weight:700;font-family:'Nunito',sans-serif;display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:0;transition:color 0.15s;}
+  .hint-toggle:hover{color:var(--amber);}
+  .hint-box{display:none;background:var(--amber-light);border:1.5px solid #f0c060;border-radius:8px;padding:9px 13px;font-size:0.85rem;font-family:'Lora',serif;font-style:italic;color:#7a5200;margin-top:6px;line-height:1.5;}
+  .hint-box.show{display:block;}
+  .small-note{font-size:0.72rem;color:var(--muted);margin-top:4px;}
+
+  .nav-bar{display:flex;justify-content:space-between;align-items:center;margin-top:28px;gap:16px;}
+  .nav-btn{padding:12px 26px;border-radius:12px;font-family:'Nunito',sans-serif;font-size:0.93rem;font-weight:800;cursor:pointer;border:none;transition:all 0.15s;display:flex;align-items:center;gap:8px;}
+  .nav-btn.prev{background:var(--card);border:2px solid var(--border);color:var(--navy);}
+  .nav-btn.prev:hover:not([disabled]){background:var(--bg);border-color:var(--navy);}
+  .nav-btn.next{background:var(--navy);color:#fff;margin-left:auto;}
+  .nav-btn.next:hover:not([disabled]){background:#0f1e30;}
+  .nav-btn[disabled]{opacity:0.4;cursor:default;}
+  .section-dots{display:flex;gap:8px;}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:background 0.2s,transform 0.2s;}
+  .dot.active{background:var(--navy);transform:scale(1.3);}
+  .dot.done{background:var(--teal);}
+
+  #results-screen{display:none;animation:fadeSlide 0.5s ease;}
+  #results-screen.show{display:block;}
+  .results-hero{background:var(--navy);color:#fff;border-radius:20px;padding:36px 28px;text-align:center;margin-bottom:24px;}
+  .results-hero .big-score{font-size:4rem;font-weight:900;color:#7ecec7;line-height:1;}
+  .results-hero .out-of{color:rgba(255,255,255,0.5);font-size:1.4rem;font-weight:700;}
+  .results-hero h2{font-size:1.3rem;margin-top:10px;font-weight:800;}
+  .results-hero p{opacity:0.7;font-family:'Lora',serif;font-style:italic;margin-top:5px;}
+  .section-scores{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
+  .sec-score-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;}
+  .sec-score-badge{width:38px;height:38px;background:var(--navy);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1rem;flex-shrink:0;}
+  .sec-score-info .label{font-size:0.78rem;color:var(--muted);font-weight:700;}
+  .sec-score-info .val{font-size:1.15rem;font-weight:900;color:var(--navy);}
+  .retry-btn{display:block;width:100%;padding:15px;background:var(--teal);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;transition:background 0.15s;}
+  .retry-btn:hover{background:#155f55;}
+
+  @media(max-width:600px){
+    main{padding:18px 14px 60px;}
+    .parts-grid,.mcq-options,.section-scores{grid-template-columns:1fr;}
+    .q-card{padding:16px 14px;}
+    header{padding:18px 14px 14px;}
+    .progress-wrap{padding:0 14px 10px;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <h1>Fractions <span>Quiz</span> — Grade 8</h1>
+    <div class="score-pill">Score: <span class="s-num" id="live-score">0</span> / 40</div>
+  </div>
+</header>
+<div class="progress-wrap">
+  <div class="progress-inner">
+    <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+    <div class="progress-label">
+      <span id="prog-text">Section 1 of 4</span>
+      <span id="prog-pct">0% answered</span>
+    </div>
+  </div>
+</div>
+
+<main id="main-content">
+  <div id="quiz-sections"></div>
+
+  <div id="results-screen">
+    <div class="results-hero">
+      <div class="big-score" id="final-score">0</div>
+      <div class="out-of">/ 40</div>
+      <h2 id="result-msg"></h2>
+      <p id="result-sub"></p>
+    </div>
+    <div class="section-scores">
+      <div class="sec-score-card"><div class="sec-score-badge">A</div><div class="sec-score-info"><div class="label">Equivalent Fractions</div><div class="val" id="sc-A">—</div></div></div>
+      <div class="sec-score-card"><div class="sec-score-badge">B</div><div class="sec-score-info"><div class="label">Adding &amp; Subtracting</div><div class="val" id="sc-B">—</div></div></div>
+      <div class="sec-score-card"><div class="sec-score-badge">C</div><div class="sec-score-info"><div class="label">Multiplying &amp; Dividing</div><div class="val" id="sc-C">—</div></div></div>
+      <div class="sec-score-card"><div class="sec-score-badge">D</div><div class="sec-score-info"><div class="label">Negative Fractions</div><div class="val" id="sc-D">—</div></div></div>
+    </div>
+    <button class="retry-btn" onclick="retryQuiz()">↺ &nbsp;Try Again with New Numbers</button>
+  </div>
+
+  <div class="nav-bar" id="nav-bar">
+    <button class="nav-btn prev" id="btn-prev" onclick="navigate(-1)" disabled>← Previous</button>
+    <div class="section-dots">
+      <div class="dot active" id="dot-0"></div>
+      <div class="dot" id="dot-1"></div>
+      <div class="dot" id="dot-2"></div>
+      <div class="dot" id="dot-3"></div>
+    </div>
+    <button class="nav-btn next" id="btn-next" onclick="navigate(1)">Next →</button>
+  </div>
+</main>
+
+<script>
+// ═══════════════════════════════════════════════
+// MATHS UTILITIES
+// ═══════════════════════════════════════════════
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a||1;}
+function lcm(a,b){return Math.abs(a*b)/gcd(a,b);}
+function simplify(n,d){const g=gcd(Math.abs(n),Math.abs(d));return[n/g,d/g];}
+function fracEq(n1,d1,n2,d2){return n1*d2===n2*d1;}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+const SD=[2,3,4,5,6,8]; // small denominators
+
+// ═══════════════════════════════════════════════
+// QUESTION GENERATORS
+// ═══════════════════════════════════════════════
+
+function genEquivPart(){
+  let n,d;
+  do{d=pick(SD);n=rnd(1,d-1);}while(gcd(n,d)!==1||d<3);
+  const mult=rnd(2,7);
+  const hideNum=Math.random()<0.5;
+  return{base:{n,d},target:{n:n*mult,d:d*mult},hideNum,answer:hideNum?n*mult:d*mult};
+}
+
+function genSimplifyPart(){
+  let n,d,g;
+  let att=0;
+  do{
+    d=pick([6,8,9,10,12,15,16,18,20,24,30,36]);
+    n=rnd(2,d-1);
+    g=gcd(n,d);
+    att++;
+  }while((g===1||n/g===n)&&att<60);
+  return{n,d,ansN:n/g,ansD:d/g};
+}
+
+function genNotEquivMCQ(){
+  let tn,td;
+  do{td=pick([3,4,5,6,7,8]);tn=rnd(1,td-1);}while(gcd(tn,td)!==1);
+  const opts=[];
+  const usedM=[];
+  const mults=[2,3,4,5,6,7,8,9];
+  while(opts.length<3){
+    const m=pick(mults);
+    if(usedM.includes(m))continue;
+    usedM.push(m);
+    opts.push({n:tn*m,d:td*m,equiv:true});
+  }
+  const imM=pick(mults.filter(x=>!usedM.includes(x)));
+  opts.push({n:tn*imM+rnd(1,3),d:td*imM,equiv:false});
+  opts.sort(()=>Math.random()-0.5);
+  const correctLetter=['A','B','C','D'][opts.findIndex(o=>!o.equiv)];
+  return{tn,td,opts,correctLetter};
+}
+
+function genSameDenomAdd(){
+  let d,n1,n2,rn,rd;
+  do{
+    d=pick(SD.filter(x=>x>2));
+    n1=rnd(1,d-2);
+    n2=rnd(1,d-n1-1);
+    [rn,rd]=simplify(n1+n2,d);
+  }while(n1+n2>=d); // keep result proper fraction
+  return{n1,d1:d,n2,d2:d,rn,rd,op:'+'};
+}
+
+function genDiffDenomOp(op){
+  let n1,d1,n2,d2,rn,rd;
+  let att=0;
+  do{
+    d1=pick(SD);n1=rnd(1,d1-1);
+    d2=pick(SD.filter(x=>x!==d1));n2=rnd(1,d2-1);
+    if(gcd(n1,d1)!==1||gcd(n2,d2)!==1){att++;continue;}
+    const L=lcm(d1,d2);
+    const rnum=op==='+'?n1*(L/d1)+n2*(L/d2):n1*(L/d1)-n2*(L/d2);
+    [rn,rd]=simplify(rnum,L);
+    att++;
+  }while((rn<=0||rd<0||Math.abs(rn)>24)&&att<80);
+  return{n1,d1,n2,d2,rn,rd,op};
+}
+
+function genMixedAdd(){
+  let w1,w2,n1,d1,n2,d2;
+  w1=rnd(1,3);w2=rnd(1,3);
+  do{d1=pick(SD);n1=rnd(1,d1-1);}while(gcd(n1,d1)!==1);
+  do{d2=pick(SD.filter(x=>x!==d1));n2=rnd(1,d2-1);}while(gcd(n2,d2)!==1);
+  const L=lcm(d1,d2);
+  const fn=n1*(L/d1)+n2*(L/d2);
+  const carry=Math.floor(fn/L);
+  const remN=fn%L;
+  const totalWhole=w1+w2+carry;
+  const[ansN,ansD]=remN===0?[0,1]:simplify(remN,L);
+  return{w1,n1,d1,w2,n2,d2,totalWhole,ansN,ansD,remN,ansD_full:L};
+}
+
+function genWordSub(){
+  let n1,d1,n2,d2,rn,rd;
+  let att=0;
+  do{
+    d1=pick([3,4,5,6,8]);n1=rnd(2,d1-1);
+    d2=pick([3,4,5,6,8]);n2=rnd(1,d2-2);
+    if(gcd(n1,d1)!==1||gcd(n2,d2)!==1){att++;continue;}
+    const L=lcm(d1,d2);
+    const rnum=n1*(L/d1)-n2*(L/d2);
+    [rn,rd]=simplify(rnum,L);
+    att++;
+  }while((rn<=0||rd<0)&&att<80);
+  return{n1,d1,n2,d2,rn,rd};
+}
+
+function genMul(){
+  let n1,d1,n2,d2,rn,rd;
+  let att=0;
+  do{
+    d1=pick(SD);n1=rnd(1,d1-1);
+    d2=pick(SD);n2=rnd(1,d2-1);
+    [rn,rd]=simplify(n1*n2,d1*d2);
+    att++;
+  }while(rn===rd&&att<40);
+  return{n1,d1,n2,d2,rn,rd};
+}
+
+function genDiv(){
+  let n1,d1,n2,d2,rn,rd;
+  let att=0;
+  do{
+    d1=pick(SD);n1=rnd(1,d1-1);
+    d2=pick(SD);n2=rnd(1,d2-1);
+    [rn,rd]=simplify(n1*d2,d1*n2);
+    att++;
+  }while((rn===rd||rd<0)&&att<40);
+  return{n1,d1,n2,d2,rn,rd};
+}
+
+function genRibbon(){
+  const ans=rnd(2,5);
+  let pn,pd;
+  do{pd=pick([3,4,5,6,8,10,12]);pn=rnd(1,pd-1);}while(gcd(pn,pd)!==1);
+  const[tn,td]=simplify(ans*pn,pd);
+  return{tn,td,pn,pd,ans};
+}
+
+function genNegAdd(){
+  let n1,d1,n2,d2,rn,rd;let att=0;
+  do{
+    d1=pick(SD);n1=rnd(1,d1-1);
+    d2=pick(SD);n2=rnd(1,d2-1);
+    const L=lcm(d1,d2);
+    const rnum=-n1*(L/d1)+n2*(L/d2);
+    [rn,rd]=simplify(rnum,L);att++;
+  }while(rn===0&&att<50);
+  return{n1,d1,n2,d2,rn,rd};
+}
+function genNegSub(){
+  let n1,d1,n2,d2,rn,rd;
+  do{
+    d1=pick(SD);n1=rnd(1,d1-1);
+    d2=pick(SD);n2=rnd(1,d2-1);
+    const L=lcm(d1,d2);
+    const rnum=-n1*(L/d1)-n2*(L/d2);
+    [rn,rd]=simplify(rnum,L);
+  }while(rn===0);
+  return{n1,d1,n2,d2,rn,rd};
+}
+function genNegMul(){
+  let n1,d1,n2,d2,rn,rd;let att=0;
+  do{
+    d1=pick(SD);n1=rnd(1,d1-1);
+    d2=pick(SD);n2=rnd(1,d2-1);
+    [rn,rd]=simplify(n1*n2,d1*d2);att++;
+  }while(rn===rd&&att<40);
+  return{n1,d1,n2,d2,rn,rd};
+}
+function genNegDiv(){
+  let n1,d1,n2,d2,rn,rd;let att=0;
+  do{
+    d1=pick(SD);n1=rnd(1,d1-1);
+    d2=pick(SD);n2=rnd(1,d2-1);
+    [rn,rd]=simplify(-n1*d2,d1*n2);att++;
+  }while((rd<0||rn===0)&&att<40);
+  return{n1,d1,n2,d2,rn,rd};
+}
+function genThreeTerm(){
+  let n1,d1,n2,d2,n3,d3,rn,rd;let att=0;
+  do{
+    d1=pick([3,4,6]);n1=rnd(1,d1-1);
+    d2=pick([3,4,6]);n2=rnd(1,d2-1);
+    d3=pick([3,4,6]);n3=rnd(1,d3-1);
+    if(gcd(n1,d1)!==1||gcd(n2,d2)!==1||gcd(n3,d3)!==1){att++;continue;}
+    const L=lcm(lcm(d1,d2),d3);
+    const rnum=-n1*(L/d1)+n2*(L/d2)+n3*(L/d3);
+    [rn,rd]=simplify(rnum,L);att++;
+  }while((rn===0||rd<1)&&att<80);
+  return{n1,d1,n2,d2,n3,d3,rn,rd};
+}
+
+// ═══════════════════════════════════════════════
+// HTML HELPERS
+// ═══════════════════════════════════════════════
+const F=(n,d)=>`<span class="frac"><span class="num">${n}</span><span class="bar"></span><span class="den">${d}</span></span>`;
+const FI=(a,b)=>`<span class="frac-input"><input type="text" id="${a}" placeholder="?" maxlength="5"><div class="frac-bar"></div><input type="text" id="${b}" placeholder="?" maxlength="5"></span>`;
+const BI=(id)=>`<input type="text" class="blank-input" id="${id}" placeholder="?" maxlength="4">`;
+const PB=(id,html)=>`<div class="part-box" id="${id}-box">${html}</div>`;
+const PR=(html)=>`<div class="problem-row">${html}</div>`;
+const HB=(id,txt)=>`<button class="hint-toggle" onclick="toggleHint('${id}')">💡 Show hint</button><div class="hint-box" id="${id}">${txt}</div>`;
+const CB=(fn)=>`<button class="check-btn" onclick="${fn}()">✓ Check answer</button>`;
+const FB=(id)=>`<div class="feedback" id="fb-${id}"></div>`;
+
+// ═══════════════════════════════════════════════
+// GENERATE & STORE DATA
+// ═══════════════════════════════════════════════
+let Q={};
+
+function generateAll(){
+  Q={};
+  Q.q1=[genEquivPart(),genEquivPart(),genEquivPart(),genEquivPart()];
+  Q.q2=[genSimplifyPart(),genSimplifyPart(),genSimplifyPart(),genSimplifyPart()];
+  Q.q3=genNotEquivMCQ();
+  Q.q4a=genSameDenomAdd();
+  Q.q4b=genDiffDenomOp('-');
+  Q.q4c=genDiffDenomOp('+');
+  Q.q4d=genMixedAdd();
+  Q.q5=genWordSub();
+  Q.q6a=genMul(); Q.q6b=genMul();
+  Q.q6c=genDiv(); Q.q6d=genDiv();
+  Q.q7=genRibbon();
+  Q.q8a=genNegAdd(); Q.q8b=genNegSub();
+  Q.q8c=genNegMul(); Q.q8d=genNegDiv();
+  Q.q9=genThreeTerm();
+}
+
+// ═══════════════════════════════════════════════
+// BUILD SECTIONS
+// ═══════════════════════════════════════════════
+function buildA(){
+  const ls=['a','b','c','d'];
+  const q1=Q.q1.map((p,i)=>{
+    const l=ls[i];
+    const base=F(p.base.n,p.base.d);
+    const tgt=p.hideNum
+      ?`<span class="frac">${BI(`q1${l}`)}<span class="bar"></span><span class="den">${p.target.d}</span></span>`
+      :`<span class="frac"><span class="num">${p.target.n}</span><span class="bar"></span>${BI(`q1${l}`)}</span>`;
+    return PB(`q1${l}`,PR(`<span class="part-label">${l})</span>${base}<span class="op">=</span>${tgt}`));
+  }).join('');
+
+  const q2=Q.q2.map((p,i)=>{
+    const l=ls[i];
+    return PB(`q2${l}`,PR(`<span class="part-label">${l})</span>${F(p.n,p.d)}<span class="op">=</span>${FI(`q2${l}-n`,`q2${l}-d`)}`));
+  }).join('');
+
+  const q3opts=Q.q3.opts.map((o,i)=>{
+    const l=['A','B','C','D'][i];
+    return `<button class="mcq-btn" onclick="selectMCQ('q3','${l}')">${l})&nbsp;${F(o.n,o.d)}</button>`;
+  }).join('');
+
+  return `<div class="section-block active" id="sec-A">
+  <div class="section-title"><div class="section-badge">A</div><div><h2>Equivalent Fractions</h2><p>Find missing values and simplify</p></div></div>
+  <div class="q-card" id="card-q1">
+    <div class="q-label"><div class="q-num">1</div><div class="q-text">Fill in the missing value (?) to make equivalent fractions.</div><div class="q-points">8 pts</div></div>
+    <div class="parts-grid">${q1}</div>
+    ${HB('h1','Multiply (or divide) both numerator and denominator by the same number.')}
+    ${CB('checkQ1')}${FB('q1')}
+  </div>
+  <div class="q-card" id="card-q2">
+    <div class="q-label"><div class="q-num">2</div><div class="q-text">Simplify each fraction to its lowest terms.</div><div class="q-points">8 pts</div></div>
+    <div class="parts-grid">${q2}</div>
+    ${HB('h2','Divide both numerator and denominator by their Greatest Common Factor (GCF).')}
+    ${CB('checkQ2')}${FB('q2')}
+  </div>
+  <div class="q-card" id="card-q3">
+    <div class="q-label"><div class="q-num">3</div><div class="q-text">Which fraction is <strong>NOT</strong> equivalent to ${F(Q.q3.tn,Q.q3.td)}?</div><div class="q-points">4 pts</div></div>
+    <div class="mcq-options" id="q3-opts">${q3opts}</div>
+    ${HB('h3',`Simplify each option — the odd one out won't reduce to ${Q.q3.tn}/${Q.q3.td}.`)}
+    <button class="check-btn" onclick="checkQ3()">✓ Check answer</button>${FB('q3')}
+  </div>
+</div>`;
+}
+
+function buildB(){
+  const a=Q.q4a,b=Q.q4b,c=Q.q4c,d=Q.q4d,w=Q.q5;
+  const dAns=d.remN===0?String(d.totalWhole):`${d.totalWhole} ${d.ansN}/${d.ansD}`;
+  const LCD5=lcm(w.d1,w.d2);
+  return `<div class="section-block" id="sec-B">
+  <div class="section-title"><div class="section-badge">B</div><div><h2>Adding &amp; Subtracting Fractions</h2><p>Find common denominators and simplify</p></div></div>
+  <div class="q-card" id="card-q4">
+    <div class="q-label"><div class="q-num">4</div><div class="q-text">Calculate. Simplify your answer.</div><div class="q-points">8 pts</div></div>
+    <div class="parts-grid">
+      ${PB('q4a',PR(`<span class="part-label">a)</span>${F(a.n1,a.d1)}<span class="op">+</span>${F(a.n2,a.d2)}<span class="op">=</span>${FI('q4a-n','q4a-d')}`))}
+      ${PB('q4b',PR(`<span class="part-label">b)</span>${F(b.n1,b.d1)}<span class="op">−</span>${F(b.n2,b.d2)}<span class="op">=</span>${FI('q4b-n','q4b-d')}`))}
+      ${PB('q4c',PR(`<span class="part-label">c)</span>${F(c.n1,c.d1)}<span class="op">+</span>${F(c.n2,c.d2)}<span class="op">=</span>${FI('q4c-n','q4c-d')}`))}
+      ${PB('q4d',PR(`<span class="part-label">d)</span><strong>${d.w1}</strong>${F(d.n1,d.d1)}<span class="op">+</span><strong>${d.w2}</strong>${F(d.n2,d.d2)}<span class="op">=</span><input class="ans-input" id="q4d-ans" placeholder="?" style="width:96px">`)+`<div class="small-note">Enter as e.g. 3 5/12 or 41/12</div>`)}
+    </div>
+    ${HB('h4','Find the LCD first. For mixed numbers, convert to improper fractions then convert back.')}
+    ${CB('checkQ4')}${FB('q4')}
+  </div>
+  <div class="q-card" id="card-q5">
+    <div class="q-label"><div class="q-num">5</div><div class="q-text">A recipe needs ${F(w.n1,w.d1)} cup of sugar, but you only have ${F(w.n2,w.d2)} cup. How much more do you need?</div><div class="q-points">4 pts</div></div>
+    <div class="working-area"><label>Working (optional)</label><textarea placeholder="Show your steps..."></textarea></div>
+    <div class="problem-row" style="margin-top:12px"><span style="font-weight:700;color:var(--navy)">Answer:</span>${FI('q5-n','q5-d')}<span style="color:var(--muted);font-weight:600">cup(s)</span></div>
+    ${HB('h5',`Subtract: ${w.n1}/${w.d1} − ${w.n2}/${w.d2}. The LCD of ${w.d1} and ${w.d2} is ${LCD5}.`)}
+    ${CB('checkQ5')}${FB('q5')}
+  </div>
+</div>`;
+}
+
+function buildC(){
+  const a=Q.q6a,b=Q.q6b,c=Q.q6c,d=Q.q6d,r=Q.q7;
+  return `<div class="section-block" id="sec-C">
+  <div class="section-title"><div class="section-badge">C</div><div><h2>Multiplying &amp; Dividing Fractions</h2><p>Multiply across; flip to divide</p></div></div>
+  <div class="q-card" id="card-q6">
+    <div class="q-label"><div class="q-num">6</div><div class="q-text">Calculate. Simplify your answer.</div><div class="q-points">8 pts</div></div>
+    <div class="parts-grid">
+      ${PB('q6a',PR(`<span class="part-label">a)</span>${F(a.n1,a.d1)}<span class="op">×</span>${F(a.n2,a.d2)}<span class="op">=</span>${FI('q6a-n','q6a-d')}`))}
+      ${PB('q6b',PR(`<span class="part-label">b)</span>${F(b.n1,b.d1)}<span class="op">×</span>${F(b.n2,b.d2)}<span class="op">=</span>${FI('q6b-n','q6b-d')}`))}
+      ${PB('q6c',PR(`<span class="part-label">c)</span>${F(c.n1,c.d1)}<span class="op">÷</span>${F(c.n2,c.d2)}<span class="op">=</span>${FI('q6c-n','q6c-d')}`))}
+      ${PB('q6d',PR(`<span class="part-label">d)</span>${F(d.n1,d.d1)}<span class="op">÷</span>${F(d.n2,d.d2)}<span class="op">=</span>${FI('q6d-n','q6d-d')}`))}
+    </div>
+    ${HB('h6','To divide fractions, flip the second fraction then multiply across. Always simplify!')}
+    ${CB('checkQ6')}${FB('q6')}
+  </div>
+  <div class="q-card" id="card-q7">
+    <div class="q-label"><div class="q-num">7</div><div class="q-text">A ribbon is ${F(r.tn,r.td)} m long. It is cut into pieces each ${F(r.pn,r.pd)} m. How many pieces are there?</div><div class="q-points">4 pts</div></div>
+    <div class="working-area"><label>Working (optional)</label><textarea placeholder="Show your steps..."></textarea></div>
+    <div class="problem-row" style="margin-top:12px"><span style="font-weight:700;color:var(--navy)">Answer:</span><input class="ans-input" id="q7-ans" placeholder="?" style="width:70px"><span style="color:var(--muted);font-weight:600">pieces</span></div>
+    ${HB('h7',`${r.tn}/${r.td} ÷ ${r.pn}/${r.pd} = ${r.tn}/${r.td} × ${r.pd}/${r.pn}. Multiply and simplify.`)}
+    ${CB('checkQ7')}${FB('q7')}
+  </div>
+</div>`;
+}
+
+function buildD(){
+  const a=Q.q8a,b=Q.q8b,c=Q.q8c,d=Q.q8d,t=Q.q9;
+  const L9=lcm(lcm(t.d1,t.d2),t.d3);
+  return `<div class="section-block" id="sec-D">
+  <div class="section-title"><div class="section-badge">D</div><div><h2>Operations with Negative Fractions</h2><p>Watch the signs carefully!</p></div></div>
+  <div class="q-card" id="card-q8">
+    <div class="q-label"><div class="q-num">8</div><div class="q-text">Calculate. Simplify your answer.</div><div class="q-points">8 pts</div></div>
+    <div class="parts-grid">
+      ${PB('q8a',PR(`<span class="part-label">a)</span><span class="op">−</span>${F(a.n1,a.d1)}<span class="op">+</span>${F(a.n2,a.d2)}<span class="op">=</span>${FI('q8a-n','q8a-d')}`)+`<div class="small-note">Use − for negative e.g. −3</div>`)}
+      ${PB('q8b',PR(`<span class="part-label">b)</span><span class="op">−</span>${F(b.n1,b.d1)}<span class="op">−</span>${F(b.n2,b.d2)}<span class="op">=</span>${FI('q8b-n','q8b-d')}`)+`<div class="small-note">Use − for negative e.g. −5</div>`)}
+      ${PB('q8c',PR(`<span class="part-label">c)</span><span class="op">(−</span>${F(c.n1,c.d1)}<span class="op">) × (−</span>${F(c.n2,c.d2)}<span class="op">)</span><span class="op">=</span>${FI('q8c-n','q8c-d')}`))}
+      ${PB('q8d',PR(`<span class="part-label">d)</span><span class="op">−</span>${F(d.n1,d.d1)}<span class="op">÷</span>${F(d.n2,d.d2)}<span class="op">=</span>${FI('q8d-n','q8d-d')}`)+`<div class="small-note">Use − for negative numerator</div>`)}
+    </div>
+    ${HB('h8','neg × neg = positive; neg ÷ pos = negative. For +/− find common denominators and track signs.')}
+    ${CB('checkQ8')}${FB('q8')}
+  </div>
+  <div class="q-card" id="card-q9">
+    <div class="q-label"><div class="q-num">9</div><div class="q-text">Evaluate:&nbsp;
+      <span class="op">(−</span>${F(t.n1,t.d1)}<span class="op">)</span>&nbsp;<span class="op">+</span>&nbsp;<span class="op">(</span>${F(t.n2,t.d2)}<span class="op">)</span>&nbsp;<span class="op">−</span>&nbsp;<span class="op">(−</span>${F(t.n3,t.d3)}<span class="op">)</span>
+    </div><div class="q-points">4 pts</div></div>
+    <div class="working-area"><label>Working (optional)</label><textarea placeholder="Show your steps..."></textarea></div>
+    <div class="problem-row" style="margin-top:12px"><span style="font-weight:700;color:var(--navy)">Answer:</span>${FI('q9-n','q9-d')}</div>
+    ${HB('h9',`Subtracting a negative = adding. So −(−${t.n3}/${t.d3}) = +${t.n3}/${t.d3}. Then LCD of ${t.d1}, ${t.d2}, ${t.d3} is ${L9}.`)}
+    ${CB('checkQ9')}${FB('q9')}
+  </div>
+  <div class="q-card" id="card-q10">
+    <div class="q-label"><div class="q-num">10</div><div class="q-text">True or False?&nbsp;<em>"A negative fraction multiplied by another negative fraction always gives a positive result."</em></div><div class="q-points">4 pts</div></div>
+    <div class="tf-options" id="q10-opts">
+      <button class="tf-btn" onclick="selectTF('q10','true')">✓&nbsp;True</button>
+      <button class="tf-btn" onclick="selectTF('q10','false')">✗&nbsp;False</button>
+    </div>
+    <div class="working-area" style="margin-top:12px"><label>Explain your reasoning</label><textarea placeholder="Write one sentence..."></textarea></div>
+    ${HB('h10','Think about sign rules for multiplication. What happens when two negatives multiply?')}
+    <button class="check-btn" onclick="checkQ10()">✓ Check answer</button>${FB('q10')}
+  </div>
+</div>`;
+}
+
+function renderQuiz(){
+  generateAll();
+  document.getElementById('quiz-sections').innerHTML=buildA()+buildB()+buildC()+buildD();
+}
+
+// ═══════════════════════════════════════════════
+// NAVIGATION STATE
+// ═══════════════════════════════════════════════
+let currentSection=0;
+const secs=['sec-A','sec-B','sec-C','sec-D'];
+const scores={A:0,B:0,C:0,D:0};
+let totalAnswered=0;
+const checked={};
+
+function navigate(dir){
+  const nxt=currentSection+dir;
+  if(nxt<0||nxt>secs.length)return;
+  if(nxt===secs.length){showResults();return;}
+  document.getElementById(secs[currentSection]).classList.remove('active');
+  currentSection=nxt;
+  document.getElementById(secs[currentSection]).classList.add('active');
+  document.getElementById('btn-prev').disabled=currentSection===0;
+  document.getElementById('btn-next').textContent=currentSection===secs.length-1?'Finish →':'Next →';
+  updateDots();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function updateDots(){
+  for(let i=0;i<4;i++){
+    const d=document.getElementById(`dot-${i}`);
+    d.classList.remove('active','done');
+    if(i===currentSection)d.classList.add('active');
+    else if(i<currentSection)d.classList.add('done');
+  }
+  document.getElementById('prog-text').textContent=`Section ${currentSection+1} of 4`;
+}
+function updateProgress(){
+  const p=Math.round((totalAnswered/10)*100);
+  document.getElementById('prog-fill').style.width=p+'%';
+  document.getElementById('prog-pct').textContent=p+'% answered';
+}
+function addScore(sec,pts){
+  scores[sec]+=pts;
+  document.getElementById('live-score').textContent=Object.values(scores).reduce((a,b)=>a+b,0);
+}
+function markChecked(id){if(!checked[id]){checked[id]=true;totalAnswered++;updateProgress();}}
+function toggleHint(id){
+  const b=document.getElementById(id);
+  b.classList.toggle('show');
+  b.previousElementSibling.textContent=b.classList.contains('show')?'💡 Hide hint':'💡 Show hint';
+}
+
+// ═══════════════════════════════════════════════
+// CHECKING HELPERS
+// ═══════════════════════════════════════════════
+function pF(nStr,dStr){
+  const n=parseInt((nStr||'').replace(/[−–-]/,'-').replace('−','-'),10);
+  const d=parseInt((dStr||''),10);
+  return[n,d];
+}
+function parseMixed(str){
+  str=(str||'').trim().replace(/[−–]/,'-');
+  const m=str.match(/^(-?\d+)\s+(\d+)\/(\d+)$/);
+  if(m){const w=+m[1],n=+m[2],d=+m[3];return w<0?[w*d-n,d]:[w*d+n,d];}
+  const f=str.match(/^(-?\d+)\/(\d+)$/);if(f)return[+f[1],+f[2]];
+  const w=str.match(/^(-?\d+)$/);if(w)return[+w[1],1];
+  return[NaN,NaN];
+}
+function showFB(id,ok,msg){
+  const fb=document.getElementById('fb-'+id);
+  fb.textContent=(ok?'✓ ':'✗ ')+msg;
+  fb.className='feedback show '+(ok?'correct':'wrong');
+}
+function markBox(id,ok){
+  const b=document.getElementById(id+'-box');
+  if(b){b.classList.remove('correct','wrong');b.classList.add(ok?'correct':'wrong');}
+}
+function disableCard(id){
+  document.querySelectorAll('#'+id+' input, #'+id+' button.check-btn').forEach(e=>e.disabled=true);
+}
+function fmtF(n,d){if(d===1)return String(n);return n<0?`−${Math.abs(n)}/${d}`:`${n}/${d}`;}
+function fmtM(w,n,d){return n===0?String(w):`${w} ${n}/${d}`;}
+
+// ═══════════════════════════════════════════════
+// CHECK FUNCTIONS
+// ═══════════════════════════════════════════════
+function checkQ1(){
+  if(checked['q1'])return;
+  const ls=['a','b','c','d'];let pts=0;
+  Q.q1.forEach((p,i)=>{
+    const l=ls[i];
+    const v=document.getElementById(`q1${l}`).value.trim();
+    const ok=parseInt(v,10)===p.answer&&v!=='';
+    if(ok)pts+=2;
+    markBox(`q1${l}`,ok);
+    document.getElementById(`q1${l}`).classList.add(ok?'correct':'wrong');
+  });
+  const ans=Q.q1.map((p,i)=>`${ls[i]}) ${p.answer}`).join(', ');
+  showFB('q1',pts===8,pts===8?'All correct! Great equivalent fraction work.':`${pts}/8 pts. Answers: ${ans}. Multiply/divide both parts by the same number.`);
+  addScore('A',pts);markChecked('q1');disableCard('card-q1');
+}
+
+function checkQ2(){
+  if(checked['q2'])return;
+  const ls=['a','b','c','d'];let pts=0;
+  Q.q2.forEach((p,i)=>{
+    const l=ls[i];
+    const[un,ud]=pF(document.getElementById(`q2${l}-n`).value,document.getElementById(`q2${l}-d`).value);
+    const ok=fracEq(un,ud,p.ansN,p.ansD)&&!isNaN(un)&&!isNaN(ud)&&ud>0;
+    if(ok)pts+=2;
+    markBox(`q2${l}`,ok);
+    [`q2${l}-n`,`q2${l}-d`].forEach(id=>document.getElementById(id).classList.add(ok?'correct':'wrong'));
+  });
+  const ans=Q.q2.map((p,i)=>`${ls[i]}) ${p.ansN}/${p.ansD}`).join(', ');
+  showFB('q2',pts===8,pts===8?'All simplified correctly!':`${pts}/8 pts. Answers: ${ans}. Divide by the GCF.`);
+  addScore('A',pts);markChecked('q2');disableCard('card-q2');
+}
+
+const mcqSt={};
+function selectMCQ(qid,ch){
+  if(checked[qid])return;
+  mcqSt[qid]=ch;
+  document.querySelectorAll(`#${qid}-opts .mcq-btn`).forEach(b=>b.classList.toggle('selected',b.textContent.trim().startsWith(ch)));
+}
+function checkQ3(){
+  if(checked['q3'])return;
+  const ch=mcqSt['q3'];
+  if(!ch){showFB('q3',false,'Please select an answer first.');return;}
+  const correct=Q.q3.correctLetter;
+  const ok=ch===correct;
+  document.querySelectorAll('#q3-opts .mcq-btn').forEach(b=>{
+    b.disabled=true;
+    const l=b.textContent.trim()[0];
+    if(l===correct)b.classList.add('correct-ans');
+    else if(l===ch&&!ok)b.classList.add('wrong-ans');
+    b.classList.remove('selected');
+  });
+  showFB('q3',ok,ok?`Correct! That fraction doesn't simplify to ${Q.q3.tn}/${Q.q3.td}.`:`The answer is ${correct}. Cross-multiply to check which isn't equal to ${Q.q3.tn}/${Q.q3.td}.`);
+  addScore('A',ok?4:0);markChecked('q3');
+}
+
+function checkQ4(){
+  if(checked['q4'])return;
+  const ps=[
+    {q:Q.q4a,n:'q4a-n',d:'q4a-d',box:'q4a'},
+    {q:Q.q4b,n:'q4b-n',d:'q4b-d',box:'q4b'},
+    {q:Q.q4c,n:'q4c-n',d:'q4c-d',box:'q4c'},
+  ];
+  let pts=0;
+  ps.forEach(p=>{
+    const[un,ud]=pF(document.getElementById(p.n).value,document.getElementById(p.d).value);
+    const ok=fracEq(un,ud,p.q.rn,p.q.rd)&&!isNaN(un)&&!isNaN(ud)&&ud>0;
+    if(ok)pts+=2;markBox(p.box,ok);
+    [p.n,p.d].forEach(id=>document.getElementById(id).classList.add(ok?'correct':'wrong'));
+  });
+  const dRaw=document.getElementById('q4d-ans').value;
+  const[dn,dd]=parseMixed(dRaw);
+  const d=Q.q4d;
+  const cN=d.totalWhole*d.ansD_full+d.remN, cD=d.ansD_full;
+  const dOk=fracEq(dn,dd,cN,cD)&&!isNaN(dn)&&!isNaN(dd)&&dd>0;
+  if(dOk)pts+=2;markBox('q4d',dOk);
+  document.getElementById('q4d-ans').classList.add(dOk?'correct':'wrong');
+  const[aa,bb,cc,dd2]=[Q.q4a,Q.q4b,Q.q4c].map(q=>fmtF(q.rn,q.rd));
+  const dAns=fmtM(d.totalWhole,d.ansN,d.ansD);
+  showFB('q4',pts===8,pts===8?'All correct!':`${pts}/8 pts. a) ${aa}, b) ${bb}, c) ${cc}, d) ${dAns}.`);
+  addScore('B',pts);markChecked('q4');disableCard('card-q4');
+}
+
+function checkQ5(){
+  if(checked['q5'])return;
+  const[un,ud]=pF(document.getElementById('q5-n').value,document.getElementById('q5-d').value);
+  const w=Q.q5;const L=lcm(w.d1,w.d2);
+  const ok=fracEq(un,ud,w.rn,w.rd)&&!isNaN(un)&&!isNaN(ud)&&ud>0;
+  showFB('q5',ok,ok?`Correct! ${w.n1}/${w.d1} − ${w.n2}/${w.d2} = ${fmtF(w.rn,w.rd)} cup.`
+    :`Not quite. LCD=${L}: ${w.n1*(L/w.d1)}/${L} − ${w.n2*(L/w.d2)}/${L} = ${fmtF(w.rn,w.rd)} cup.`);
+  addScore('B',ok?4:0);markChecked('q5');disableCard('card-q5');
+}
+
+function checkQ6(){
+  if(checked['q6'])return;
+  const ps=[
+    {q:Q.q6a,n:'q6a-n',d:'q6a-d',box:'q6a'},
+    {q:Q.q6b,n:'q6b-n',d:'q6b-d',box:'q6b'},
+    {q:Q.q6c,n:'q6c-n',d:'q6c-d',box:'q6c'},
+    {q:Q.q6d,n:'q6d-n',d:'q6d-d',box:'q6d'},
+  ];
+  let pts=0;
+  ps.forEach(p=>{
+    const[un,ud]=pF(document.getElementById(p.n).value,document.getElementById(p.d).value);
+    const ok=fracEq(un,ud,p.q.rn,p.q.rd)&&!isNaN(un)&&!isNaN(ud)&&ud>0;
+    if(ok)pts+=2;markBox(p.box,ok);
+    [p.n,p.d].forEach(id=>document.getElementById(id).classList.add(ok?'correct':'wrong'));
+  });
+  const[aa,bb,cc,dd]=[Q.q6a,Q.q6b,Q.q6c,Q.q6d].map(q=>fmtF(q.rn,q.rd));
+  showFB('q6',pts===8,pts===8?'Excellent!':`${pts}/8 pts. a) ${aa}, b) ${bb}, c) ${cc}, d) ${dd}. For division: flip and multiply!`);
+  addScore('C',pts);markChecked('q6');disableCard('card-q6');
+}
+
+function checkQ7(){
+  if(checked['q7'])return;
+  const v=document.getElementById('q7-ans').value.trim();
+  const ok=parseInt(v,10)===Q.q7.ans&&v!=='';
+  document.getElementById('q7-ans').classList.add(ok?'correct':'wrong');
+  const r=Q.q7;
+  showFB('q7',ok,ok?`Correct! ${r.tn}/${r.td} ÷ ${r.pn}/${r.pd} = ${r.ans} pieces.`
+    :`Not quite. ${r.tn}/${r.td} × ${r.pd}/${r.pn} = ${r.ans} pieces.`);
+  addScore('C',ok?4:0);markChecked('q7');disableCard('card-q7');
+}
+
+function checkQ8(){
+  if(checked['q8'])return;
+  const ps=[
+    {q:Q.q8a,n:'q8a-n',d:'q8a-d',box:'q8a'},
+    {q:Q.q8b,n:'q8b-n',d:'q8b-d',box:'q8b'},
+    {q:Q.q8c,n:'q8c-n',d:'q8c-d',box:'q8c'},
+    {q:Q.q8d,n:'q8d-n',d:'q8d-d',box:'q8d'},
+  ];
+  let pts=0;
+  ps.forEach(p=>{
+    const nRaw=(document.getElementById(p.n).value||'').replace('−','-');
+    const[un,ud]=pF(nRaw,document.getElementById(p.d).value);
+    const ok=fracEq(un,ud,p.q.rn,p.q.rd)&&!isNaN(un)&&!isNaN(ud)&&ud>0;
+    if(ok)pts+=2;markBox(p.box,ok);
+    [p.n,p.d].forEach(id=>document.getElementById(id).classList.add(ok?'correct':'wrong'));
+  });
+  const[aa,bb,cc,dd]=[Q.q8a,Q.q8b,Q.q8c,Q.q8d].map(q=>fmtF(q.rn,q.rd));
+  showFB('q8',pts===8,pts===8?'Excellent! All negative fraction operations correct!':`${pts}/8 pts. a) ${aa}, b) ${bb}, c) ${cc}, d) ${dd}.`);
+  addScore('D',pts);markChecked('q8');disableCard('card-q8');
+}
+
+function checkQ9(){
+  if(checked['q9'])return;
+  const nRaw=(document.getElementById('q9-n').value||'').replace('−','-');
+  const[un,ud]=pF(nRaw,document.getElementById('q9-d').value);
+  const t=Q.q9;
+  const ok=fracEq(un,ud,t.rn,t.rd)&&!isNaN(un)&&!isNaN(ud)&&ud>0;
+  const L=lcm(lcm(t.d1,t.d2),t.d3);
+  showFB('q9',ok,ok?`Correct! The answer is ${fmtF(t.rn,t.rd)}.`
+    :`Not quite. −(−${t.n3}/${t.d3})=+${t.n3}/${t.d3}. LCD=${L}: ${-t.n1*(L/t.d1)}/${L}+${t.n2*(L/t.d2)}/${L}+${t.n3*(L/t.d3)}/${L}=${fmtF(t.rn,t.rd)}.`);
+  addScore('D',ok?4:0);markChecked('q9');disableCard('card-q9');
+}
+
+const tfSt={};
+function selectTF(qid,ch){
+  if(checked[qid])return;
+  tfSt[qid]=ch;
+  document.querySelectorAll(`#${qid}-opts .tf-btn`).forEach(b=>b.classList.toggle('selected',b.textContent.includes(ch==='true'?'True':'False')));
+}
+function checkQ10(){
+  if(checked['q10'])return;
+  const ch=tfSt['q10'];
+  if(!ch){showFB('q10',false,'Please select True or False first.');return;}
+  const ok=ch==='true';
+  document.querySelectorAll('#q10-opts .tf-btn').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent.includes('True'))b.classList.add('correct-ans');
+    else if(!b.textContent.includes('True')&&ch==='false')b.classList.add('wrong-ans');
+    b.classList.remove('selected');
+  });
+  showFB('q10',ok,ok?'Correct! neg × neg = positive — same sign rules as integers. e.g. (−1/2)×(−2/3)=+1/3.'
+    :'Actually True! neg × neg always = positive. e.g. (−1/2)×(−2/3)=+1/3.');
+  addScore('D',ok?4:0);markChecked('q10');
+}
+
+// ═══════════════════════════════════════════════
+// RESULTS
+// ═══════════════════════════════════════════════
+function showResults(){
+  document.getElementById(secs[currentSection]).classList.remove('active');
+  document.getElementById('results-screen').classList.add('show');
+  document.getElementById('nav-bar').style.display='none';
+  const total=Object.values(scores).reduce((a,b)=>a+b,0);
+  document.getElementById('final-score').textContent=total;
+  document.getElementById('sc-A').textContent=`${scores.A} / 20`;
+  document.getElementById('sc-B').textContent=`${scores.B} / 12`;
+  document.getElementById('sc-C').textContent=`${scores.C} / 12`;
+  document.getElementById('sc-D').textContent=`${scores.D} / 16`;
+  const pct=Math.round((total/40)*100);
+  let msg,sub;
+  if(pct>=90){msg='🌟 Outstanding!';sub='You have a strong grasp of fractions.';}
+  else if(pct>=75){msg='🎉 Great work!';sub='Solid understanding with a few areas to review.';}
+  else if(pct>=55){msg='👍 Good effort!';sub="Keep practising — you're getting there.";}
+  else{msg='📚 Keep going!';sub="Review the sections and try again — you've got this.";}
+  document.getElementById('result-msg').textContent=msg;
+  document.getElementById('result-sub').textContent=sub;
+}
+
+function retryQuiz(){
+  currentSection=0;
+  Object.keys(scores).forEach(k=>scores[k]=0);
+  Object.keys(checked).forEach(k=>delete checked[k]);
+  Object.keys(mcqSt).forEach(k=>delete mcqSt[k]);
+  Object.keys(tfSt).forEach(k=>delete tfSt[k]);
+  totalAnswered=0;
+  document.getElementById('live-score').textContent='0';
+  document.getElementById('prog-fill').style.width='0%';
+  document.getElementById('prog-pct').textContent='0% answered';
+  document.getElementById('results-screen').classList.remove('show');
+  document.getElementById('nav-bar').style.display='flex';
+  renderQuiz();
+  updateDots();
+  document.getElementById('btn-prev').disabled=true;
+  document.getElementById('btn-next').textContent='Next →';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── INIT ──
+renderQuiz();
+</script>
+</body>
+</html>
